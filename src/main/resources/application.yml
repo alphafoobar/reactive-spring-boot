@@ -1,6 +1,8 @@
 spring:
   application:
     name: Spring Boot Java Base
+  main:
+    banner-mode: off
 
 resource:
   path: /sbjb
