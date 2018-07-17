@@ -2,19 +2,15 @@ plugins {
     id "com.github.spotbugs" version "1.6.1"
     id "org.springframework.boot" version "2.0.3.RELEASE"
     id "io.spring.dependency-management" version "1.0.5.RELEASE"
-    id "com.palantir.docker" version "0.20.1"
-    id "org.owasp.dependencycheck" version "3.1.2"
 }
 
-group = 'com.bnc'
+group = 'kaizen7'
 version = '0.0.1-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'checkstyle'
 apply plugin: 'com.github.spotbugs'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -73,60 +69,22 @@ test {
     finalizedBy jacocoTestReport, jacocoTestCoverageVerification
 }
 
-if (!project.hasProperty("REPOSITORY_URI")) {
-    ext.REPOSITORY_URI = jar.baseName
-}
-
-if (!project.hasProperty("TAG")) {
-    ext.TAG = jar.version
-}
-
-docker {
-    name project.hasProperty("REPOSITORY_URI") ? "${REPOSITORY_URI}" : "sbjb"
-    tags "${TAG}", 'latest'
-    files jar.archivePath, "${project.projectDir.absolutePath}/lib/newrelic-agent-4.1.0.jar", "${project.projectDir.absolutePath}/config/newrelic/newrelic.yml"
-    def argMap = [
-        'jar_file'           : "${bootJar.archiveName}",
-        'newrelic_enabled' : "true"
-    ]
-
-    // These are optional args.
-    if (project.hasProperty("SPRING_PROFILES")) {
-        argMap.spring_profiles = "${SPRING_PROFILES}"
-    }
-    if (project.hasProperty("GUEST_JAVA_OPTS")) {
-        argMap.guest_java_opts = "${GUEST_JAVA_OPTS}"
-    }
-    if (project.hasProperty("ENVIRONMENT")) {
-        argMap.environment = "${ENVIRONMENT}"
-    }
-    if (project.hasProperty("NEWRELIC_ENABLED")) {
-        argMap.newrelic_enabled = "${NEWRELIC_ENABLED}"
-    }
-    buildArgs(argMap)
-
-    printf("docker name is [${name}]\n")
-    printf("docker archive path is [${jar.archivePath}]\n")
-    printf("docker archive name is [${bootJar.archiveName}]\n")
-    printf("docker app jar is [${argMap.jar_file}]\n")
-}
-
 dependencies {
     def springBootVersion = '2.0.3.RELEASE'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
     implementation group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '3.1.5'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.6'
-    implementation group: 'io.micrometer', name: 'micrometer-registry-new-relic', version: '1.0.5'
+    implementation group:  'com.google.guava', name: 'guava', version: '25.1-jre'
 
-    runtime group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
+    implementation group: 'info.bitrich.xchange-stream', name: 'xchange-stream-core', version: '4.3.2'
+    implementation group: 'info.bitrich.xchange-stream', name: 'xchange-bitfinex', version: '4.3.2'
 
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.2.0'
     testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.2.0'
-    testRuntime group: 'com.h2database', name: 'h2', version: '1.4.197'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.18.3'
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.9.0'
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
 
     // Remove once Mockito 3.x gets released with Junit 5 support
     testImplementation 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.1'

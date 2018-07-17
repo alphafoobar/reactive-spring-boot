@@ -1,33 +1,5 @@
 spring:
   application:
-    name: Spring Boot Java Base
+    name: Reactive Spring Boot
   main:
     banner-mode: "off"
-
-resource:
-  path: /sbjb
-
-# Actuator Settings
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,threaddump,env
-  endpoint:
-    health:
-      show-details: ALWAYS
-  metrics:
-    export:
-      newrelic:
-        enabled: false
----
-
-spring:
-  profiles: production
-management:
-  metrics:
-    export:
-      newrelic:
-        account-id:
-        api-key:
-        enabled: true
