@@ -17,7 +17,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.FluxProcessor;
 
 public class BitfinexGateway implements Closeable {
 
@@ -48,7 +48,7 @@ public class BitfinexGateway implements Closeable {
         }
     }
 
-    public void subscribe(String sessionId, CurrencyPair pair, EmitterProcessor<String> onNext) {
+    public void subscribe(String sessionId, CurrencyPair pair, FluxProcessor<String, String> onNext) {
         logger.info("subscribing to pair={} for sessionId={}", pair, sessionId);
         connect();
 
@@ -63,8 +63,10 @@ public class BitfinexGateway implements Closeable {
     // Create an Observable stream that produces Strings.
     private Observable<String> getTicker(CurrencyPair pair) {
         return bitfinexSubscriptions.computeIfAbsent(pair, currencyPair ->
-            exchange.getStreamingMarketDataService().getTicker(currencyPair).doOnError(throwable
-                -> logger.warn("Error subscribing to symbol={}, errorMessage=\"{}\"", pair, throwable))
+            exchange
+                .getStreamingMarketDataService().getTicker(currencyPair)
+                .doOnError(
+                    throwable -> logger.warn("Error subscribing to symbol={}, errorMessage=\"{}\"", pair, throwable))
                 .map(this::valueAsString));
     }
 
