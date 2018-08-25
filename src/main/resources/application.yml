@@ -3,3 +3,11 @@ spring:
     name: Reactive Spring Boot
   main:
     banner-mode: "off"
+
+server:
+  port: 9443
+  ssl:
+    key-store: classpath:server-keystore.jks
+    key-store-password: server-keystore-p455w0rd
+    key-alias: server-keypair
+    key-password: server-key-p455w0rd
